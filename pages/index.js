@@ -2,8 +2,6 @@
 import { Box, Button, Text, TextField, Image } from '@skynexui/components';
 // importar informações que usaremos como padrão lá do config.json 
 import appConfig from '../config.json';
-// backgroundImage
-import queenFt from '../pictures/zyro-image.png';
 
 
 function GlobalStyle() {
