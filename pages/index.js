@@ -111,11 +111,10 @@ export default function PaginaInicial() {
                                     backgroundColor: appConfig.theme.colors.neutrals[800],
                                 },
                             }}
-                            value={username}
                             onChange={(event) => {
                                 // mudar o valor do usuário
                                 // valor
-                                let valor = event.target.value;
+                                const valor = event.target.value;
                 
                                 // validar se existe o usuário e pegar a sua foto
                                 fetch(`${apiGithub}${valor}`, {method: 'GET'}).then(
