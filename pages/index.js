@@ -1,37 +1,12 @@
+// importar o React
+import React from 'react';
+// Para ajudar nas rotas
+import { useRouter } from 'next/router';
 // importar componentes do skynexui
 import { Box, Button, Text, TextField, Image } from '@skynexui/components';
 // importar informações que usaremos como padrão lá do config.json 
 import appConfig from '../config.json';
 
-
-function GlobalStyle() {
-    return (
-        <style global jsx>{`
-        * {
-        margin: 0;
-        padding: 0;
-        box-sizing: border-box;
-        list-style: none;
-      }
-      body {
-        font-family: 'Open Sans', sans-serif;
-      }
-      /* App fit Height */ 
-      html, body, #__next {
-        min-height: 100vh;
-        display: flex;
-        flex: 1;
-      }
-      #__next {
-        flex: 1;
-      }
-      #__next > * {
-        flex: 1;
-      }
-      /* ./App fit Height */ 
-        `}</style>
-    )
-}
 
 
 function Titulo(props) {
@@ -54,28 +29,30 @@ function Titulo(props) {
 }
 
 
-// componente react
-// function HomePage() {
-//     // JSX
-//     return (
-//         <div>
-//             {/* uma tag para deixar algo genérico/global */}
-//             <GlobalStyle />
-
-//             <Titulo tag="h2">Boas vindas de volta!</Titulo>
-//             <h2>Discord - Alura Matrix</h2>
-
-//         </div>
-//     )  
-// }
-// export default HomePage
 
 export default function PaginaInicial() {
-    const username = 'Luanzacarias';
+
+    const gitURL = 'https://github.com/';
+    const apiGithub = 'https://api.github.com/users/';
+
+
+    // Fazer com que o usuário seja variável ao digitar no textField
+    const [username, setUsername] = React.useState('')
+    // const para armazenar a imagem do user
+    const [userImg, setUserImg] = React.useState(`${gitURL}github.png`)
+    // const para nome abaixo da foto
+    const [nameImg, setNameImg] = React.useState('GitHub')
+    // usar nas rotas das pags
+    const roteamento = useRouter();
+    
+    
+    
+
+    
+    
 
     return (
         <>
-            <GlobalStyle />
             <Box
                 styleSheet={{
                     display: 'flex', alignItems: 'center', justifyContent: 'center',
@@ -102,6 +79,17 @@ export default function PaginaInicial() {
                     {/* Formulário */}
                     <Box
                         as="form"
+                        // sempre que tiver uma submissão no forms
+                        onSubmit={(event) => {
+                            // tiramos o padrão (nesse caso o reload da pag) e podemos passar oq queremos que ocorra quando tiver a submissão
+                            event.preventDefault()
+                            console.log("Alguém submeteu")
+                            // enviar para a página do chat
+                            // window.location.href = '/chat'
+                            // enviar pra pag chat sem indicar o "refrash" da pag
+                            roteamento.push('/chat')
+
+                        }}
                         styleSheet={{
                             display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
                             width: { xs: '100%', sm: '50%' }, textAlign: 'center', marginBottom: '32px',
@@ -114,6 +102,7 @@ export default function PaginaInicial() {
 
                         <TextField
                             fullWidth
+                            placeholder='Usuário do GitHub'
                             textFieldColors={{
                                 neutral: {
                                     textColor: appConfig.theme.colors.neutrals[200],
@@ -122,8 +111,33 @@ export default function PaginaInicial() {
                                     backgroundColor: appConfig.theme.colors.neutrals[800],
                                 },
                             }}
-                            placeholder='Usuário do GitHub'
-                        />
+                            value={username}
+                            onChange={(event) => {
+                                // mudar o valor do usuário
+                                // valor
+                                let valor = event.target.value;
+                
+                                // validar se existe o usuário e pegar a sua foto
+                                fetch(`${apiGithub}${valor}`, {method: 'GET'}).then(
+                                    (retorno) => {
+                                        // se existir vai pegar a foto e por o nome no username
+                                        if(retorno.status === 200){
+                                            console.log('user existe 200')
+                                            // Trocar o valor da username
+                                            setUsername(valor);
+                                            setNameImg(valor)
+                                            // Trocar o valor do userImg
+                                            setUserImg(`${gitURL}${valor}.png`)
+                                        }else if(retorno.status === 404){
+                                            setNameImg('User não existe')
+                                            setUserImg(`https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcR4tBbzVZlIvgshAFiNpeCsuFW-UE3dZpnIxQ&usqp=CAU`)
+                                        }
+                                    }
+                                )
+                                
+                            }}
+                        /> 
+
                         <Button
                             type='submit'
                             label='Entrar'
@@ -160,7 +174,7 @@ export default function PaginaInicial() {
                                 borderRadius: '50%',
                                 marginBottom: '16px',
                             }}
-                            src={`https://github.com/${username}.png`}
+                            src={userImg}
                         />
                         <Text
                             variant="body4"
@@ -171,7 +185,7 @@ export default function PaginaInicial() {
                                 borderRadius: '1000px'
                             }}
                         >
-                            {username}
+                            {nameImg}
                         </Text>
                     </Box>
                     {/* Photo Area */}
