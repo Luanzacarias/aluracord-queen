@@ -45,11 +45,6 @@ export default function PaginaInicial() {
     // usar nas rotas das pags
     const roteamento = useRouter();
     
-    
-    
-
-    
-    
 
     return (
         <>
@@ -113,7 +108,7 @@ export default function PaginaInicial() {
                             }}
                             onChange={(event) => {
                                 // mudar o valor do usuário
-                                // valor
+                                // onde ta o valor?
                                 const valor = event.target.value;
                 
                                 // validar se existe o usuário e pegar a sua foto
