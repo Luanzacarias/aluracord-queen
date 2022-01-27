@@ -82,7 +82,7 @@ export default function PaginaInicial() {
                             // enviar para a página do chat
                             // window.location.href = '/chat'
                             // enviar pra pag chat sem indicar o "refrash" da pag
-                            roteamento.push('/chat')
+                            roteamento.push(`/chat?username=${username}`)
 
                         }}
                         styleSheet={{

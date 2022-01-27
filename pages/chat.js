@@ -2,40 +2,100 @@ import { Box, Text, TextField, Image, Button } from '@skynexui/components';
 import React from 'react';
 import appConfig from '../config.json';
 
+// importar o icone para loading das mensagens
+import { ThreeDots } from 'react-loading-icons';
+// serviço do banco de dados
+import { createClient } from '@supabase/supabase-js'
+// usar pra pegar o nome do user logado no index.js passado pelo useRouter
+import { useRouter } from 'next/router';
+//chave database supabase
+const SUPABASE_ANNO_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJyb2xlIjoiYW5vbiIsImlhdCI6MTY0MzI4NjM3NywiZXhwIjoxOTU4ODYyMzc3fQ.obE39FzrzjycEFG25vOG3MC45jDQsPJ5_CKADxG3TyA';
+// url
+const SUPABASE_URL = 'https://czczddaesnofmtmoqkkr.supabase.co';
+// supabase cliente, através dele que é possível pegar dados
+const supabaseClient = createClient(SUPABASE_URL, SUPABASE_ANNO_KEY)
+    
 
 export default function ChatPage() {
-    
+
+    // passar para conseguir pegar o nome do user que fez o login
+    const router = useRouter();
+    const { username } = router.query;
+
     // useState para manter a mensagem
     const [mensagem, setMensagem] = React.useState('');
     // lista de mensagens
     const [listaMensagens, setListaMensagens] = React.useState([]);
 
+    // useState para o loading
+    const [loading, setLoading] = React.useState(true)
+
+    
+
+    // "não faz parte do fluxo padrão"
+    // usando ele com o supabase para não fazer uma requisição sempre que renderizar o chatPage
+    // se não fosse, toda vez que uma tecla fosse digitada ele faria uma requisição.
+    // toda vez que a página carregar ele roda
+    React.useEffect(() => {
+        // Pegar os dados do database
+        supabaseClient
+            .from('mensagens')
+            .select('*')
+            .order('id', {ascending: false}) // mudar a ordem do id, maoir para o menor e vir na ordem que queremos
+            .then(({data}) => {
+                console.log('Dados da consulta: ', data);
+                // passar os dados da dataBase para o useState da pag
+                if(data != null){
+                    setListaMensagens(data)
+                }
+                setLoading(false)                
+            })
+    }, []) // [condição que faz ele chamar o useEffect dnv]
+    
+
+
     // função pra enviar as mensagens
     function handleNovaMensage(novaMensagem) {
-        //
+        // props da mensagem
         const mensagem = {
-            id: listaMensagens.length + 1, // utilizando o proprio tamanho da lista pra gerar o id 
-            de: 'vanessametonini',
+            // id já tem la no servidor, ai não precisa
+            de: username,
             texto: novaMensagem,
         }
 
-        setListaMensagens([
-            // a ordem depende da sua preferência na hr de exibir
-            mensagem,
-            ...listaMensagens
+        // Enviar a nova mensagem para o database 
+        supabaseClient
+            .from('mensagens')
+            .insert([mensagem])
+            .then(({data}) => {
+                // pega so a nova mensagem e insere na lista
+                setListaMensagens([
+                data[0],
+                ...listaMensagens
         ]);
+            })
+
+        
         setMensagem('');
     }
 
     // função para deletar mensagem da lista
     function handleDeleteMensagem(mensagemAtual) {
-        // id da msg
-        const id = mensagemAtual.id;
-        // lista filtrada
-        const messagesListFiltered = listaMensagens.filter((message) => {
-            return message.id != id
-        })
-        setListaMensagens(messagesListFiltered);
+        
+        // excluir a mensagem primeiro no supabase e depois no useState 
+        supabaseClient
+            .from('mensagens')
+            .delete()
+            .match({id: mensagemAtual.id})
+            .then(({data}) => {
+                // lista filtrada
+                const messagesListFiltered = listaMensagens.filter((message) => {
+                    return message.id != data[0].id
+                });
+                setListaMensagens(messagesListFiltered);
+            });
+
+        
     }
     
 
@@ -75,8 +135,26 @@ export default function ChatPage() {
                         padding: '16px',
                     }}
                 >
-
-                    <MessageList mensagens={listaMensagens} handleDeleteMensagem={handleDeleteMensagem}/>
+                    {loading ? 
+                        <Box
+                            styleSheet={{
+                                position: 'relative',
+                                display: 'flex',
+                                alignItems: 'center',
+                                justifyContent: 'center',
+                                height: '100%'
+                            }}
+                        >
+                            <ThreeDots 
+                                fill={appConfig.theme.colors.neutrals[800]} 
+                                height='16px'
+                            />
+                        </Box>
+                        :
+                        <MessageList mensagens={listaMensagens} handleDeleteMensagem={handleDeleteMensagem}/>
+                    
+                    }
+                    
                 
                     <Box
                         as="form"
@@ -198,6 +276,7 @@ function MessageList(props) {
                                 alignItems: 'center',
                             }}
                         >
+                            
                             <Image
                                 styleSheet={{
                                     width: '20px',
@@ -205,8 +284,14 @@ function MessageList(props) {
                                     borderRadius: '50%',
                                     display: 'inline-block',
                                     marginRight: '8px',
+                                    hover: {
+                                        transform: 'scale(2.5)',
+                                        marginLeft: '20px',
+                                        marginRight: '20px'
+                                    }
                                 }}
-                                src={`https://github.com/vanessametonini.png`}
+                                src={`https://github.com/${mensagem.de}.png`}
+                                
                             />
                             <Text tag="strong">
                                 {mensagem.de}
