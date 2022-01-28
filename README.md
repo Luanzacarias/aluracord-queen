@@ -11,8 +11,8 @@
 ## Projeto
 - Você faz entra com a sua conta do GitHub e pode conversar com várias outras pessoas no chat, sobre o assunto que quiserem!
 - Clique [aqui](https://aluracord-queen.vercel.app/) para acessar o projeto na web.
-![Imagem](./img/projeto.jpg)
-![Imagem](./img/projeto2.jpg)
+![Imagem](./src/img/projeto.jpg)
+![Imagem](./src/img/projeto2.jpg)
 
 ## Tecnologias usadas
 - React;
