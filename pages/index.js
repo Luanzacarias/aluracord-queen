@@ -7,6 +7,7 @@ import { Box, Button, Text, TextField, Image } from '@skynexui/components';
 // importar informações que usaremos como padrão lá do config.json 
 import appConfig from '../config.json';
 
+import { gitURL, apiGithub } from "../src/services/api";
 
 
 function Titulo(props) {
@@ -32,16 +33,16 @@ function Titulo(props) {
 
 export default function PaginaInicial() {
 
-    const gitURL = 'https://github.com/';
-    const apiGithub = 'https://api.github.com/users/';
-
-
     // Fazer com que o usuário seja variável ao digitar no textField
-    const [username, setUsername] = React.useState('')
+    const [username, setUsername] = React.useState('');
     // const para armazenar a imagem do user
-    const [userImg, setUserImg] = React.useState(`${gitURL}github.png`)
+    const [userImg, setUserImg] = React.useState(`${gitURL}github.png`);
+    // dados captados da api
+    const [userData, setUserData] = React.useState({});
     // const para nome abaixo da foto
-    const [nameImg, setNameImg] = React.useState('GitHub')
+    const [nameImg, setNameImg] = React.useState('GitHub');
+    // estado para permitir clicar no botão
+    const [userValido, setUserValido] = React.useState(false);
     // usar nas rotas das pags
     const roteamento = useRouter();
     
@@ -78,9 +79,8 @@ export default function PaginaInicial() {
                         onSubmit={(event) => {
                             // tiramos o padrão (nesse caso o reload da pag) e podemos passar oq queremos que ocorra quando tiver a submissão
                             event.preventDefault()
-                            console.log("Alguém submeteu")
+                            // console.log("Alguém submeteu")
                             // enviar para a página do chat
-                            // window.location.href = '/chat'
                             // enviar pra pag chat sem indicar o "refrash" da pag
                             roteamento.push(`/chat?username=${username}`)
 
@@ -112,19 +112,24 @@ export default function PaginaInicial() {
                                 const valor = event.target.value;
                 
                                 // validar se existe o usuário e pegar a sua foto
+                                
                                 fetch(`${apiGithub}${valor}`, {method: 'GET'}).then(
                                     (retorno) => {
                                         // se existir vai pegar a foto e por o nome no username
                                         if(retorno.status === 200){
-                                            console.log('user existe 200')
+                                            // console.log('user existe 200')
                                             // Trocar o valor da username
                                             setUsername(valor);
-                                            setNameImg(valor)
+                                            setNameImg(valor);
                                             // Trocar o valor do userImg
-                                            setUserImg(`${gitURL}${valor}.png`)
+                                            setUserImg(`${gitURL}${valor}.png`);
+                                            // permitir clicar no botão
+                                            setUserValido(true);
                                         }else if(retorno.status === 404){
-                                            setNameImg('User não existe')
-                                            setUserImg(`https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcR4tBbzVZlIvgshAFiNpeCsuFW-UE3dZpnIxQ&usqp=CAU`)
+                                            setNameImg('User não existe');
+                                            setUserImg(`https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcR4tBbzVZlIvgshAFiNpeCsuFW-UE3dZpnIxQ&usqp=CAU`);
+                                            // não permitir clicar no botão
+                                            setUserValido(false);
                                         }
                                     }
                                 )
@@ -142,6 +147,7 @@ export default function PaginaInicial() {
                                 mainColorLight: appConfig.theme.colors.queen[600],
                                 mainColorStrong: appConfig.theme.colors.queen[700],
                             }}
+                            disabled={!userValido}
                         />
                     </Box>
                     {/* Formulário */}
