@@ -1,6 +1,6 @@
 # Aluracord 
 
-- Projeto desenvolvido durante a Imersão React (21/01/2021 -- 31/01/2021), proporcioando pela [Alura](https://alura.com.br/).
+- Projeto desenvolvido durante a Imersão React (21/01/2022 -- 31/01/2022), proporcioando pela [Alura](https://alura.com.br/).
 
 ## Professores:
 
